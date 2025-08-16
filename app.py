@@ -209,10 +209,24 @@ def main():
                             
                             time.sleep(10)
                             operation = client.operations.get(operation)
+                            
+                            # Verificar si hay error en la operación
+                            if hasattr(operation, 'error') and operation.error:
+                                st.error(f"❌ Error en la generación: {operation.error}")
+                                return
                         
                         # Video completado
                         progress_bar.progress(1.0)
                         status_text.text("✅ ¡Video generado exitosamente!")
+                        
+                        # Verificar que la respuesta existe
+                        if not operation.response:
+                            st.error("❌ Error: La operación se completó pero no hay respuesta")
+                            return
+                        
+                        if not hasattr(operation.response, 'generated_videos') or not operation.response.generated_videos:
+                            st.error("❌ Error: No se generaron videos en la respuesta")
+                            return
                         
                         # Descargar video
                         generated_video = operation.response.generated_videos[0]
