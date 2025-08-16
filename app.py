@@ -50,18 +50,11 @@ def main():
         api_key = st.text_input(
             "API Key de Google AI",
             type="password",
-            help="Obtén tu API key en https://aistudio.google.com/app/apikey"
+            help="Introduce tu API key de Google AI"
         )
         
         if not api_key:
             st.warning("⚠️ Necesitas una API key para usar la aplicación")
-            st.markdown("""
-            **Para obtener tu API key:**
-            1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
-            2. Inicia sesión con tu cuenta de Google
-            3. Crea una nueva API key
-            4. Cópiala y pégala arriba
-            """)
         
         st.markdown("---")
         
@@ -144,22 +137,6 @@ def main():
             help="Sé descriptivo y específico para obtener mejores resultados. Usa inglés para mejores resultados."
         )
         
-        # Ejemplos rápidos
-        st.markdown("**Ejemplos rápidos:**")
-        col_ex1, col_ex2 = st.columns(2)
-        
-        with col_ex1:
-            if st.button("🌅 Paisaje natural", key="ex1"):
-                st.session_state.example_prompt = "A peaceful forest clearing with sunlight filtering through tall trees, gentle breeze moving the leaves, cinematic quality"
-        
-        with col_ex2:
-            if st.button("🏙️ Ciudad nocturna", key="ex2"):
-                st.session_state.example_prompt = "Time-lapse of a bustling city at night, car lights creating trails, skyscrapers illuminated against the dark sky"
-        
-        if 'example_prompt' in st.session_state:
-            prompt = st.session_state.example_prompt
-            del st.session_state.example_prompt
-            st.rerun()
     
     with col2:
         st.header("🎬 Especificaciones Técnicas")
