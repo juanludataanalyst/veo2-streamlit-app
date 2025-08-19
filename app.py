@@ -231,10 +231,9 @@ def main():
                 }
             else:  # Veo 3
                 config_params = {
-                    "aspect_ratio": aspect_ratio,  # Veo 3 también soporta 16:9 y 9:16
-                    "number_of_videos": 1,
-                    "person_generation": person_generation
-                    # Veo 3 no soporta duration_seconds, enhance_prompt ni resolution en Gemini API
+                    "aspect_ratio": aspect_ratio,
+                    "number_of_videos": 1
+                    # Veo 3 no soporta: duration_seconds, enhance_prompt, resolution, person_generation
                 }
             
             config = types.GenerateVideosConfig(**config_params)
