@@ -95,25 +95,6 @@ def main():
                 help="Veo 3 solo soporta videos de 8 segundos"
             )
         
-        # Configuración de generación de personas (diferente para cada modelo)
-        if model_version == "Veo 2":
-            person_generation = st.selectbox(
-                "👤 Generación de personas",
-                options=["allow_adult", "dont_allow"],
-                index=1,  # Default a dont_allow para ser más seguro
-                format_func=lambda x: "Permitir adultos" if x == "allow_adult" else "No permitir personas",
-                help="Control de seguridad para personas en el video"
-            )
-        else:  # Veo 3
-            person_generation = "dont_allow"  # Forzar dont_allow para Veo 3
-            st.selectbox(
-                "👤 Generación de personas",
-                options=["dont_allow"],
-                index=0,
-                disabled=True,
-                format_func=lambda x: "No permitir personas",
-                help="Veo 3 solo permite 'dont_allow' para generación de personas"
-            )
         
         st.markdown("---")
         
@@ -226,14 +207,12 @@ def main():
                     "aspect_ratio": aspect_ratio,
                     "duration_seconds": duration,
                     "number_of_videos": 1,
-                    "enhance_prompt": enhance_prompt,
-                    "person_generation": person_generation
+                    "enhance_prompt": enhance_prompt
                 }
             else:  # Veo 3
                 config_params = {
                     "aspect_ratio": aspect_ratio,
                     "number_of_videos": 1
-                    # Veo 3 no soporta: duration_seconds, enhance_prompt, resolution, person_generation
                 }
             
             config = types.GenerateVideosConfig(**config_params)
