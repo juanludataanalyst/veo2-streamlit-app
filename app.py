@@ -10,13 +10,13 @@ import os
 from google import genai
 from google.genai import types
 
-def generate_video(api_key, prompt, config=None):
-    """Generar video usando Veo 2"""
+def generate_video(api_key, prompt, config=None, model="veo-2.0-generate-001"):
+    """Generar video usando Veo 2 o Veo 3"""
     try:
         client = genai.Client(api_key=api_key)
         
         operation = client.models.generate_videos(
-            model="veo-2.0-generate-001",
+            model=model,
             prompt=prompt,
             config=config
         )
@@ -40,7 +40,7 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    st.title("🎥 Generador de Videos con Veo 2")
+    st.title("🎥 Generador de Videos con Veo 2 & 3")
     st.markdown("**Genera videos de alta calidad usando inteligencia artificial**")
     st.markdown("---")
     
@@ -61,19 +61,59 @@ def main():
         # Configuración del video
         st.header("⚙️ Configuración del Video")
         
-        aspect_ratio = st.selectbox(
-            "📐 Proporción de aspecto",
-            options=["16:9", "9:16"],
+        # Selector de modelo
+        model_version = st.selectbox(
+            "🤖 Modelo de IA",
+            options=["Veo 2", "Veo 3"],
             index=0,
-            help="16:9 para horizontal, 9:16 para vertical"
+            help="Veo 3 incluye generación de audio y mayor resolución"
         )
         
-        duration = st.selectbox(
-            "⏱️ Duración (segundos)",
-            options=[5, 6, 7, 8],
-            index=0,
-            help="Duración del video generado"
-        )
+        # Configuración de aspect ratio (diferente para cada modelo)
+        if model_version == "Veo 2":
+            aspect_ratio = st.selectbox(
+                "📐 Proporción de aspecto",
+                options=["16:9", "9:16"],
+                index=0,
+                help="16:9 para horizontal, 9:16 para vertical"
+            )
+        else:
+            aspect_ratio = "16:9"  # Veo 3 solo soporta 16:9
+            st.selectbox(
+                "📐 Proporción de aspecto",
+                options=["16:9"],
+                index=0,
+                disabled=True,
+                help="Veo 3 solo soporta formato 16:9"
+            )
+        
+        # Configuración de resolución (solo para Veo 3)
+        resolution = "720p"  # Default para Veo 2
+        if model_version == "Veo 3":
+            resolution = st.selectbox(
+                "📺 Resolución",
+                options=["720p", "1080p"],
+                index=0,
+                help="Resolución del video (solo disponible en Veo 3)"
+            )
+        
+        # Configuración de duración (diferente para cada modelo)
+        if model_version == "Veo 2":
+            duration = st.selectbox(
+                "⏱️ Duración (segundos)",
+                options=[5, 6, 7, 8],
+                index=0,
+                help="Duración del video generado"
+            )
+        else:
+            duration = 8  # Veo 3 solo soporta 8 segundos
+            st.selectbox(
+                "⏱️ Duración (segundos)",
+                options=[8],
+                index=0,
+                disabled=True,
+                help="Veo 3 solo soporta videos de 8 segundos"
+            )
         
         person_generation = st.selectbox(
             "👤 Generación de personas",
@@ -130,27 +170,48 @@ def main():
     
     with col1:
         st.header("✍️ Prompt del Video")
+        
+        # Información específica para Veo 3
+        if model_version == "Veo 3":
+            st.info("🎵 **Veo 3 incluye generación automática de audio sincronizado.** Puedes incluir descripciones de sonidos, música o diálogos en tu prompt.")
+        
         prompt = st.text_area(
             "Describe el video que quieres generar:",
             height=150,
-            placeholder="Ejemplo: A serene mountain landscape at sunrise, mist rolling over the peaks, gentle camera movement revealing a crystal clear lake below",
-            help="Sé descriptivo y específico para obtener mejores resultados. Usa inglés para mejores resultados."
+            placeholder="Ejemplo: A serene mountain landscape at sunrise, mist rolling over the peaks, gentle camera movement revealing a crystal clear lake below" + 
+                       (" with soft nature sounds and gentle wind" if model_version == "Veo 3" else ""),
+            help="Sé descriptivo y específico para obtener mejores resultados. Usa inglés para mejores resultados." +
+                 (" Para Veo 3, incluye descripciones de audio." if model_version == "Veo 3" else "")
         )
         
     
     with col2:
         st.header("🎬 Especificaciones Técnicas")
         
-        st.info("""
-        **Veo 2.0 - Especificaciones:**
-        - Resolución: 720p (fijo)
-        - Framerate: 24 FPS (fijo)
-        - Duración: 5-8 segundos
-        - Idioma prompt: Solo inglés
-        - Formato: MP4 con audio
-        - Límites: 20 requests/minuto
-        - Marca de agua: SynthID automática
-        """)
+        if model_version == "Veo 2":
+            st.info("""
+            **Veo 2.0 - Especificaciones:**
+            - Resolución: 720p (fijo)
+            - Framerate: 24 FPS (fijo)
+            - Duración: 5-8 segundos
+            - Idioma prompt: Solo inglés
+            - Formato: MP4 (sin audio nativo)
+            - Límites: 20 requests/minuto
+            - Marca de agua: SynthID automática
+            """)
+        else:
+            st.info("""
+            **Veo 3.0 - Especificaciones:**
+            - Resolución: 720p o 1080p seleccionable
+            - Framerate: 24 FPS (fijo)
+            - Duración: 8 segundos (fijo)
+            - Proporción: 16:9 únicamente
+            - Idioma prompt: Solo inglés
+            - Formato: MP4 con audio nativo
+            - Límites: 10 requests/minuto
+            - Marca de agua: SynthID automática
+            - Audio: Sincronizado automáticamente
+            """)
         
         if not api_key:
             st.warning("⚠️ Introduce tu API key para continuar")
@@ -164,14 +225,28 @@ def main():
     
     if st.button("🎥 Generar Video", disabled=not (api_key and prompt.strip()), type="primary"):
         if api_key and prompt.strip():
-            # Crear configuración
-            config = types.GenerateVideosConfig(
-                aspect_ratio=aspect_ratio,
-                duration_seconds=duration,
-                number_of_videos=1,
-                enhance_prompt=enhance_prompt,
-                person_generation=person_generation
-            )
+            # Determinar modelo y configuración
+            model_name = "veo-2.0-generate-001" if model_version == "Veo 2" else "veo-3.0-generate-preview"
+            
+            # Crear configuración base (diferente para cada modelo)
+            if model_version == "Veo 2":
+                config_params = {
+                    "aspect_ratio": aspect_ratio,
+                    "duration_seconds": duration,
+                    "number_of_videos": 1,
+                    "enhance_prompt": enhance_prompt,
+                    "person_generation": person_generation
+                }
+            else:  # Veo 3
+                config_params = {
+                    "aspect_ratio": "16:9",  # Fijo para Veo 3
+                    "resolution": resolution,
+                    "number_of_videos": 1,
+                    "person_generation": person_generation
+                    # Veo 3 no soporta duration_seconds ni enhance_prompt
+                }
+            
+            config = types.GenerateVideosConfig(**config_params)
             
             # Añadir parámetros opcionales
             if use_seed and seed_value is not None:
@@ -181,7 +256,7 @@ def main():
                 config.negative_prompt = negative_prompt.strip()
             
             with st.spinner("🔄 Iniciando generación del video..."):
-                operation, error = generate_video(api_key, prompt, config)
+                operation, error = generate_video(api_key, prompt, config, model_name)
                 
                 if operation is None:
                     st.error(f"❌ Error al iniciar la generación: {error}")
@@ -281,10 +356,11 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("""
+    st.markdown(f"""
     <div style='text-align: center; color: #666;'>
-        <p>🤖 Powered by Google Veo 2 | Desarrollado con Streamlit</p>
+        <p>🤖 Powered by Google Veo 2 & 3 | Desarrollado con Streamlit</p>
         <p>⚠️ Los videos generados incluyen marca de agua SynthID invisible</p>
+        {"<p>🎵 Veo 3 incluye audio nativo sincronizado automáticamente</p>" if model_version == "Veo 3" else ""}
     </div>
     """, unsafe_allow_html=True)
 
