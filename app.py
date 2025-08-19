@@ -66,36 +66,16 @@ def main():
             "🤖 Modelo de IA",
             options=["Veo 2", "Veo 3"],
             index=0,
-            help="Veo 3 incluye generación de audio y mayor resolución"
+            help="Veo 3 incluye generación de audio sincronizado automáticamente"
         )
         
-        # Configuración de aspect ratio (diferente para cada modelo)
-        if model_version == "Veo 2":
-            aspect_ratio = st.selectbox(
-                "📐 Proporción de aspecto",
-                options=["16:9", "9:16"],
-                index=0,
-                help="16:9 para horizontal, 9:16 para vertical"
-            )
-        else:
-            aspect_ratio = "16:9"  # Veo 3 solo soporta 16:9
-            st.selectbox(
-                "📐 Proporción de aspecto",
-                options=["16:9"],
-                index=0,
-                disabled=True,
-                help="Veo 3 solo soporta formato 16:9"
-            )
-        
-        # Configuración de resolución (solo para Veo 3)
-        resolution = "720p"  # Default para Veo 2
-        if model_version == "Veo 3":
-            resolution = st.selectbox(
-                "📺 Resolución",
-                options=["720p", "1080p"],
-                index=0,
-                help="Resolución del video (solo disponible en Veo 3)"
-            )
+        # Configuración de aspect ratio (ambos modelos soportan 16:9 y 9:16)
+        aspect_ratio = st.selectbox(
+            "📐 Proporción de aspecto",
+            options=["16:9", "9:16"],
+            index=0,
+            help="16:9 para horizontal, 9:16 para vertical"
+        )
         
         # Configuración de duración (diferente para cada modelo)
         if model_version == "Veo 2":
@@ -202,10 +182,10 @@ def main():
         else:
             st.info("""
             **Veo 3.0 - Especificaciones:**
-            - Resolución: 720p o 1080p seleccionable
+            - Resolución: 720p (fijo en Gemini API)
             - Framerate: 24 FPS (fijo)
             - Duración: 8 segundos (fijo)
-            - Proporción: 16:9 únicamente
+            - Proporción: 16:9 o 9:16
             - Idioma prompt: Solo inglés
             - Formato: MP4 con audio nativo
             - Límites: 10 requests/minuto
@@ -239,11 +219,10 @@ def main():
                 }
             else:  # Veo 3
                 config_params = {
-                    "aspect_ratio": "16:9",  # Fijo para Veo 3
-                    "resolution": resolution,
+                    "aspect_ratio": aspect_ratio,  # Veo 3 también soporta 16:9 y 9:16
                     "number_of_videos": 1,
                     "person_generation": person_generation
-                    # Veo 3 no soporta duration_seconds ni enhance_prompt
+                    # Veo 3 no soporta duration_seconds, enhance_prompt ni resolution en Gemini API
                 }
             
             config = types.GenerateVideosConfig(**config_params)

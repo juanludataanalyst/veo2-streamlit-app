@@ -10,7 +10,7 @@ Aplicación web para generar videos usando Google Veo 2 y Veo 3, construida con 
 
 - **Dual Engine**: Soporta tanto Google Veo 2 como Veo 3
 - **Audio nativo**: Veo 3 incluye generación automática de audio sincronizado
-- **Múltiples resoluciones**: 720p (ambos) y 1080p (solo Veo 3)
+- **Resolución HD**: 720p de alta calidad en ambos modelos
 - **Interfaz intuitiva**: UI moderna y fácil de usar
 - **Configuración avanzada**: Control total sobre parámetros de generación
 - **Descarga directa**: Descarga videos en formato MP4
@@ -20,15 +20,11 @@ Aplicación web para generar videos usando Google Veo 2 y Veo 3, construida con 
 
 ### Configuración del Video
 - **Modelos**: Veo 2 o Veo 3 seleccionables
-- **Proporción**: 
-  - Veo 2: 16:9 (horizontal) o 9:16 (vertical)
-  - Veo 3: 16:9 únicamente
+- **Proporción**: 16:9 (horizontal) o 9:16 (vertical) en ambos modelos
 - **Duración**: 
   - Veo 2: 5-8 segundos seleccionables
   - Veo 3: 8 segundos (fijo)
-- **Resolución**: 
-  - Veo 2: 720p (fijo)
-  - Veo 3: 720p o 1080p seleccionable
+- **Resolución**: 720p (fijo en ambos modelos)
 - **Audio**: 
   - Veo 2: Sin audio nativo
   - Veo 3: Audio sincronizado automáticamente
